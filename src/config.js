@@ -1,5 +1,5 @@
-const protocol = 'http://';
+const protocol = 'https://';
 
-const host = 'localhost:8080/api';
+const host = 'wordsspringapi.azurewebsites.net/api';
 
 export const apiUrl = `${protocol}${host}`;
