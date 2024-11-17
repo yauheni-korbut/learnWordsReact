@@ -26,7 +26,6 @@ const getSets = async (dispatch) => {
     dispatch(getSetsRequestActionCreator());
     try {
         const { data } = await setService.getAllUserSets(getLoggedUserId());
-        debugger
         dispatch(getSetsSuccessActionCreator(data))
     } catch(e) {
         dispatch(getSetsFailedActionCreator(e))
@@ -42,7 +41,6 @@ const createNewSet = async (dispatch, newSetData) => {
         await setService.createSet(newSetData, getLoggedUserId());
         dispatch(createNewSetSuccessActionCreator(newSetData))
     } catch (e) {
-        debugger
         dispatch(createNewSetFailedActionCreator(e))
         Logger.error(MODULE_NAME, 'handleCreateNewSet', e);
     }

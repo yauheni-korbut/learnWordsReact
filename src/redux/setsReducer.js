@@ -21,7 +21,6 @@ let initialState = {
 }
 
 const setsReducer = (state = initialState, action) => {
-    debugger
     switch (action.type) {
         case GET_SETS_REQUEST:
             return {
@@ -33,7 +32,6 @@ const setsReducer = (state = initialState, action) => {
                 }
             }
         case GET_SETS_SUCCESS:
-            debugger
             return {
                 ...state,
                 setsData: action.setsData,

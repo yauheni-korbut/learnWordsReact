@@ -14,8 +14,6 @@ const ResultModal = ({ wordsData, trainingKey, title, setId, setTitle, setLocale
     const { wordsLeftToLearn: wordsToLearn, isResultTrainingModalVisible, amountLeftWordsToLearn } = stateTrainingWordPage;
     const navigate = useNavigate();
 
-    debugger;
-
     const handleGoToWordsPage = () => {
         setStateTrainingWordPage({ ...stateTrainingWordPage, isResultTrainingModalVisible: false })
         navigate('/set/words', { state: { set: { title: setTitle, id: setId, locale: setLocale } }} );

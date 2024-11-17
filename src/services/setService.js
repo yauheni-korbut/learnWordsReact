@@ -20,7 +20,6 @@ const getAllUserSets = (userId) => {
 };
 
 const createSet = (newSetData, userId) => {
-    debugger
     const body = {
         name: newSetData.title,
         locale: newSetData.locale,
@@ -30,7 +29,6 @@ const createSet = (newSetData, userId) => {
 }
 
 const updateSet = (newSetData, userId, setId) => {
-    debugger
     const body = {
         id: setId,
     };

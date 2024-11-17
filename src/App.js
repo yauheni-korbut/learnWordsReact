@@ -8,14 +8,10 @@ import { WordsPageWithRouter } from "./Components/Words/WordsPage/WordsPage";
 import { TrainingsPage } from './Components/Trainings/TrainingsPage/TrainingsPage';
 import { TrainingWordPage } from './Components/Trainings/TrainingWordPage/TrainingWordPage'
 import './App.scss';
-import {useSpeechSynthesis} from "react-speech-kit";
-import { appVoices } from "./utils/Helpers";
 
 const { Content, Footer } = Layout;
 
 function App() {
-
-
     const keyHandlerTrainingWordPage = (e) => {
         e.stopPropagation();
         console.log('keyHandlerTrainingWordPage ', e.keyCode)
@@ -37,17 +33,6 @@ function App() {
 
     window.addEventListener("keydown", keyHandlerTrainingWordPage);
 
-
-    const { voices } = useSpeechSynthesis();
-
-    (function initPolishVoice() {
-        appVoices.polishVoice = voices.find(voice => voice.name === "Google polski");
-    })();
-
-    (function initEnglishVoice() {
-        appVoices.englishVoice = voices.find(voice => voice.name === "Daniel");
-    })();
-
     return (
         <BrowserRouter>
             <Layout>
@@ -62,7 +47,7 @@ function App() {
                         <Route path='/words/trainings/play' element = { <TrainingWordPage /> }></Route>
                     </Routes>
                 </Content>
-                <Footer style={{ textAlign: 'center' }}>App for learning English ©2022 Created by Korbut2.0</Footer>
+                <Footer style={{ textAlign: 'center' }}>App for learning words ©2024 Created by Yauheni Korbut & Iryna Ramanouskaya</Footer>
             </Layout>
         </BrowserRouter>
     );

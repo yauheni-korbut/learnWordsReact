@@ -1,20 +1,19 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from 'react';
-import {Button, Card, Space} from 'antd';
-import { v4 as uuidv4 } from "uuid";
+import { Button, Card, Space } from 'antd';
 
-//Components
+// Components
 import { AnswersCollection } from "../AnswersCollection/AnswersCollections";
 import { ResultModalWithRouter } from "../ResultModal/ResultModal";
 
-//services
+// Services
 import { wordService } from "../../../services/wordService";
 
-//helpers
-import { getImgURL, getShuffleWords, getTitleForCard } from '../../../utils/Helpers';
+// Helpers
+import { getShuffleWords, getTitleForCard } from '../../../utils/Helpers';
 import { Logger } from "../../../utils/logger";
 
-//constants
+// Constants
 import { currentUserKey } from "../../../services/serviceConstants";
 
 const MODULE_NAME = 'TrainingWordPage';
@@ -65,7 +64,6 @@ const TrainingWordPage = () => {
         document.getElementsByTagName('img')[0].src = "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3RqcDhlOXd6Zjlxc3hmOG5uNTBlYnk2N3h2MWpuZWM0MHVtaGNoayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oEjI6SIIHBdRxXI40/giphy.gif"
         setTimeout(() => {
             const nextIndex = indexOfCurrentWord + 1;
-            debugger;
             if (wordsToLearn[nextIndex]) {
                 setStateTrainingWordPage({
                     ...stateTrainingWordPage,
@@ -121,7 +119,7 @@ const TrainingWordPage = () => {
                           backgroundColor: 'rgba(24,144,255,0.42)',
                           textAlign: 'center',
                       }}
-                      key={ uuidv4() }
+                      key={currentWord.id}
                 >
                     <AnswersCollection wordsData={wordsData} trainingKey={trainingKey} currentWord={currentWord} answersArray={answersArray} setId={setId} setLocale={setLocale}/>
                 </Card>
