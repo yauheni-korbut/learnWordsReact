@@ -1,12 +1,10 @@
-import { Card, Avatar, Modal, Input } from 'antd';
+import { Card, Avatar, Modal, Checkbox } from 'antd';
 import { EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { currentUserKey } from "../../../services/serviceConstants";
 import { setService } from "../../../services/setService";
 import { Logger } from "../../../utils/logger";
-import { v4 as uuidv4 } from 'uuid'
-import {LOCALE_EN} from "../../../utils/constants";
 import {getCreateOrEditSetModal} from "../../../utils/Helpers";
 
 const MODULE_NAME = 'setCard';
@@ -20,7 +18,7 @@ const withRouter = WrappedComponent => props => {
     return <WrappedComponent {...props} location={location} />;
 };
 
-const SetCard = ({ set, updateSetsData }) => {
+const SetCard = ({ set, updateSetsData, onSelectChange, isSelected }) => {
     const { name: title, id, locale } = set;
 
     const styles = {
@@ -112,7 +110,7 @@ const SetCard = ({ set, updateSetsData }) => {
 
     return (
         <Card
-            key={uuidv4()}
+            key={id}
             style={styles}
             cover={
                 <img
@@ -122,13 +120,20 @@ const SetCard = ({ set, updateSetsData }) => {
             }
             actions={[
                 <EditOutlined id="edit" onClick={handleCardEdit} />,
-                <DeleteOutlined id="delete" onClick={handleCardDelete} />
+                <DeleteOutlined id="delete" onClick={handleCardDelete} />,
+                <Checkbox
+                    checked={isSelected}
+                    onChange={() => onSelectChange(id)}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    Select
+                </Checkbox>,
             ]}
             hoverable='true'
             onClick={handleCardClick}
         >
             <Meta
-                key={uuidv4()}
+                key={id}
                 avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
                 title={`${title} (${locale})`}
             />

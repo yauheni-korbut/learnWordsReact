@@ -1,9 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Popconfirm, Progress } from "antd";
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { v4 as uuidv4 } from "uuid";
 
-//helpers
+// Helpers
 import { getShuffleWords } from "../../../utils/Helpers";
 import { Logger } from "../../../utils/logger";
 
@@ -53,7 +52,7 @@ const TrainingCard = ({ title, wordsData, trainingKey, setId, setTitle, setLocal
         >
 
             <Card
-                key={uuidv4()}
+                key={setId}
                 title={title}
                 style={{width: 300}}
                 headStyle={{backgroundColor: 'rgba(24,144,255,0.42)', fontSize: 30}}

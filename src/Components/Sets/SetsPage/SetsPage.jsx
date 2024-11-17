@@ -1,23 +1,48 @@
+import { useState } from 'react';
 import { Button, Modal } from "antd";
 import { EditOutlined } from "@ant-design/icons";
-import { v4 as uuidv4 } from "uuid";
 
-//Components
-import { SetCardWithRouter } from "../setCard/setCard";
+// Components
+import { SetCardWithRouter } from "../SetCard/SetCard";
 
-//helpers
+// Helpers
 import { Logger } from "../../../utils/logger";
 import { getCreateOrEditSetModal } from "../../../utils/Helpers";
 
-//constants
+// Constants
 import { LOCALE_EN } from "../../../utils/constants";
 
 const { confirm } = Modal;
 
+const styles = {
+    padding: 24,
+    minHeight: '81vh',
+    marginTop: 16,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 15,
+};
+
+const cardsContainerStyles = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+};
+
+const btnContainer = {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 30,
+}
+
 const MODULE_NAME = 'SetsPage';
 
-const SetsPage = ({ setsState, updateSetsState, createNewSet }) => {
+const SetsPage = ({ setsState, updateSetsState, createNewSet, mergeSets }) => {
+    const [ selectedSetsIds, setSelectedSetsIds ] = useState([]);
     const { setsData } = setsState;
+
+    const isMergeDisabled = !selectedSetsIds.length
 
     const handleCreateNewSet = () => {
         onCreateNewSet()
@@ -27,6 +52,21 @@ const SetsPage = ({ setsState, updateSetsState, createNewSet }) => {
                     Logger.info(MODULE_NAME, 'handleCreateNewSet', error.message);
                 } else {
                     Logger.error(MODULE_NAME, 'handleCreateNewSet', error);
+                }
+            })
+    };
+
+    const handleMergeSets = () => {
+        mergeSets(selectedSetsIds)
+            .then(() => {
+                updateSetsState();
+                setSelectedSetsIds([]);
+            })
+            .catch((error) => {
+                if (error.reason === 'user') {
+                    Logger.info(MODULE_NAME, 'handleMergeSets', error.message);
+                } else {
+                    Logger.error(MODULE_NAME, 'handleMergeSets', error);
                 }
             })
     };
@@ -62,28 +102,23 @@ const SetsPage = ({ setsState, updateSetsState, createNewSet }) => {
         })
     };
 
-    const styles = {
-        padding: 24,
-        minHeight: '81vh',
-        marginTop: 16,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    };
+    const onSelectChange = (setId) => {
+        const isAlreadySelected = selectedSetsIds.includes(setId);
+        const updatedIds = isAlreadySelected ? selectedSetsIds.filter(id => id !== setId) : [...selectedSetsIds, setId];
 
-    const cardsContainerStyles = {
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
+        setSelectedSetsIds(updatedIds);
     };
 
     const setsCards = setsData
-        ? setsData.map(set => (<SetCardWithRouter key={uuidv4()} set={set} updateSetsData={updateSetsState} />))
+        ? setsData.map(set => (<SetCardWithRouter key={set.id} set={set} updateSetsData={updateSetsState} onSelectChange={onSelectChange} isSelected={selectedSetsIds.includes(set.id)} />))
         : <></>;
 
     return (
         <div className="site-layout-background" style={styles}>
-            <Button type="primary" style={{ marginBottom: 15 }} onClick={handleCreateNewSet}>Create new set</Button>
+            <div style={btnContainer}>
+                <Button type="primary" style={{ minWidth: 170 }} onClick={handleCreateNewSet}>Create new set</Button>
+                <Button disabled={isMergeDisabled} type="primary" style={{ minWidth: 170 }} onClick={handleMergeSets}>Merge selected sets</Button>
+            </div>
             <div style={cardsContainerStyles}>
                 { setsCards }
             </div>

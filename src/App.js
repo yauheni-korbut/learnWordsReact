@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { Layout } from "antd";
 
 import { AppHeader } from "./Components/Header/AppHeader";
@@ -14,14 +14,13 @@ const { Content, Footer } = Layout;
 function App() {
     const keyHandlerTrainingWordPage = (e) => {
         e.stopPropagation();
-        console.log('keyHandlerTrainingWordPage ', e.keyCode)
         switch (e.keyCode) {
             case 49:
             case 50:
             case 51:
             case 52:
             case 53:
-                document.getElementsByClassName('ant-card-grid')[e.keyCode - 49].click();
+                document.getElementsByClassName('ant-card-grid')[e.keyCode - 49]?.click();
                 break;
             case 13:
                 document.getElementsByClassName('ant-btn-primary')[0].click();

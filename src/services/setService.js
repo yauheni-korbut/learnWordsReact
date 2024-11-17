@@ -42,6 +42,12 @@ const updateSet = (newSetData, userId, setId) => {
         .catch(error => Logger.error(MODULE_NAME, 'createSet', error));
 }
 
+const mergeSets = (setsIds, userId) => {
+    const [baseSetId, ...restIds] = setsIds;
+    return http.post(`${getBasicApiEndpoint(userId)}/sets/${baseSetId}`, restIds, { headers })
+        .catch(error => Logger.error(MODULE_NAME, 'mergeSets', error));
+}
+
 const deleteSet = (userId, setId) => {
     return http.delete(`${getBasicApiEndpoint(userId)}/sets/${setId}`);
 }
@@ -51,6 +57,7 @@ const setService = {
     createSet,
     deleteSet,
     updateSet,
+    mergeSets,
 }
 
 export {

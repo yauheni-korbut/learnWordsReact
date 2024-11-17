@@ -1,28 +1,26 @@
 import { Layout, Menu} from "antd";
-import { v4 as uuidv4 } from "uuid";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from 'react-router-dom';
 
 const { Header } = Layout;
 const menuItems = ['Home', 'Sets'];
 
-const MODULE_NAME = 'AppHeader';
-
-const menuItemsComponents = menuItems.map((item) => {
-    return (
-        <Menu.Item key={uuidv4()}>
-            <Link to={`/${item.toLowerCase()}` }/>
-            <span>{ item }</span>
-        </Menu.Item>
-    );
-});
+const menuItemsComponents = menuItems.map(item => (
+    {
+        key: `/${item.toLowerCase()}`,
+        label: <Link to={`/${item.toLowerCase()}` }>{item}</Link>,
+    }
+))
 
 const AppHeader = () => {
+    const location = useLocation();
+
+    const getSelectedKey = (pathname) => pathname.startsWith('/home') ? '/home' : '/sets';
+
+    const selectedKey = getSelectedKey(location.pathname);
+
     return (
         <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
-            <div className="logo" />
-            <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
-                { menuItemsComponents }
-            </Menu>
+            <Menu theme="dark" mode="horizontal" selectedKeys={[selectedKey]} items={menuItemsComponents} />
         </Header>
     )
 }
