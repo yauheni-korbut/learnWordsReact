@@ -1,19 +1,18 @@
 import { Card } from "antd";
-import { v4 as uuidv4 } from 'uuid';
 
-//Components
+// Components
 import { wordService } from '../../../services/wordService'
 import {currentUserKey} from "../../../services/serviceConstants";
 
-//helpers
-import { isEnLocale, isRuEnTraining, appVoices, getImgURL, getAnswerBtnBackgroundColor } from "../../../utils/Helpers";
+// Helpers
+import { isEnLocale, isRuEnTraining, getImgURL, getAnswerBtnBackgroundColor } from "../../../utils/Helpers";
 import {Logger} from "../../../utils/logger";
-import {useSpeechSynthesis} from "react-speech-kit";
+import { useSpeechSynthesis } from '../../../hooks/useSpeechSynthesis';
 
 const MODULE_NAME = 'AnswerBtn';
 
 const AnswerBtn = ({ answerNumber, answerData, trainingKey, currentWord, setId, setLocale, answerCollectionState, setAnswerCollectionState, isThisBtnChosenAsCorrectAnswer, isThisBtnWasChosen, isThisBtnShouldBeCorrectAnswer }) => {
-    const { speak } = useSpeechSynthesis();
+    const { speak, appVoices } = useSpeechSynthesis();
 
     const answer = isRuEnTraining(trainingKey) ? answerData.word : answerData.meaning;
     const backgroundColor = getAnswerBtnBackgroundColor(answerCollectionState.isAnswerChosen, isThisBtnWasChosen, isThisBtnChosenAsCorrectAnswer, isThisBtnShouldBeCorrectAnswer);
@@ -29,10 +28,7 @@ const AnswerBtn = ({ answerNumber, answerData, trainingKey, currentWord, setId, 
     const voice = isEnLocale(setLocale) ? appVoices.englishVoice : appVoices.polishVoice;
 
     const handleClickAnswer = (e) => {
-        debugger;
         e.stopPropagation();
-        console.log(document.getElementsByTagName('img')[0].alt);
-        console.log(document.getElementsByTagName('img')[0].src);
         document.getElementsByTagName('img')[0].src = getImgURL(document.getElementsByTagName('img')[0].alt);
         const isRightAnswer = answerData.id === currentWord.id;
         const userId = JSON.parse(localStorage.getItem(currentUserKey)).id;
@@ -55,13 +51,9 @@ const AnswerBtn = ({ answerNumber, answerData, trainingKey, currentWord, setId, 
                 .catch(error => Logger.error(MODULE_NAME, 'handleClickAnswer', 'word was not updated, error occur: ', error));
         }
     }
-
-
-
-
     return (
         <Card.Grid
-            key={uuidv4()}
+            key={answer}
             style={gridStyle}
             onClick={answerCollectionState.isAnswerChosen ? () => {} : handleClickAnswer}
             hoverable={!answerCollectionState.isAnswerChosen}

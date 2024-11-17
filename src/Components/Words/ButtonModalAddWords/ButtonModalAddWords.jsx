@@ -27,7 +27,6 @@ const ButtonModalAddWords = ({ setId, updateWordsPage }) => {
         const userId = JSON.parse(localStorage.getItem(currentUserKey)).id;
         setConfirmLoading(true);
         const newWordsData = getParsedNewWords();
-        debugger;
         wordService.createWord({ userId, setId, body: newWordsData })
             .then(() => {
                 setVisible(false);
@@ -42,7 +41,6 @@ const ButtonModalAddWords = ({ setId, updateWordsPage }) => {
     }
 
     const getParsedNewWords = () => {
-        debugger
         return newWords.trim().split('\n')
             .map(wordData => {
                 const wordDataArray =  wordData.split(REG_EXP_TO_SPLIT_ADDED_WORDS).map(item => item.trim());

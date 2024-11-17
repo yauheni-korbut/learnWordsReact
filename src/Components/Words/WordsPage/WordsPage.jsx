@@ -1,22 +1,21 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useSpeechSynthesis } from 'react-speech-kit';
 import { Table, Space, Button, Tooltip, Popconfirm, Input, Modal, Card, Tag } from 'antd';
 import { DeleteOutlined, EditOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
-import { v4 as uuidv4 } from 'uuid'
 
-//services
+// Services
 import { wordService } from "../../../services/wordService";
 
-//constants
+// Constants
 import { currentUserKey } from "../../../services/serviceConstants";
 
-//helpers
-import { isThereWordsToLearnInSet, isEnLocale, appVoices, getImgURL, getLoggedUserId } from "../../../utils/Helpers";
+// Helpers
+import { isThereWordsToLearnInSet, isEnLocale, getImgURL, getLoggedUserId } from "../../../utils/Helpers";
 import { Logger } from "../../../utils/logger";
 
-//Components
+// Components
 import { ButtonModalAddWords } from "../ButtonModalAddWords/ButtonModalAddWords";
+import { useSpeechSynthesis } from '../../../hooks/useSpeechSynthesis';
 
 const { confirm } = Modal;
 
@@ -50,8 +49,9 @@ const WordsPage = () => {
     const [cardMeaning, setCardMeaning] = useState('');
     const [cardId, setCardId] = useState();
 
-    const { speak } = useSpeechSynthesis();
-    const voice = isEnLocale(setLocale) ? appVoices.englishVoice : appVoices.polishVoice;
+    const { speak, appVoices } = useSpeechSynthesis();
+
+  const voice = isEnLocale(setLocale) ? appVoices.englishVoice : appVoices.polishVoice;
 
     const navigate = useNavigate();
 
@@ -90,10 +90,10 @@ const WordsPage = () => {
                 const getColor = (value) => value ? 'green' : 'volcano';
                 return (
                     <span>
-                    <Tag color={getColor(wordData.trainingEnRu)} key={uuidv4()}>
+                    <Tag color={getColor(wordData.trainingEnRu)} key={0}>
                         {`${setLocale} -> RU`}
                     </Tag>
-                    <Tag color={getColor(wordData.trainingRuEn)} key={uuidv4()}>
+                    <Tag color={getColor(wordData.trainingRuEn)} key={1}>
                         {`RU -> ${setLocale}`}
                     </Tag>
                 </span>
@@ -279,17 +279,21 @@ const WordsPage = () => {
         setCardTranscription(wordData.transcription);
         setCardMeaning(wordData.meaning);
         setCardId(wordData.id);
-        speak({ text: wordData.word, voice })
+    }
+
+    const showCard = (wordData) => {
+        setCardData(wordData);
+        speak({ text: wordData.word, voice });
     }
 
     const prevWord = () => {
         const prevWordIndex = findCurrentWordIndex(cardId) - 1;
-        setCardData(wordsData[prevWordIndex] || wordsData[wordsData.length - 1]);
+        showCard(wordsData[prevWordIndex] || wordsData[wordsData.length - 1]);
     }
 
     const nextWord = () => {
         const nextWordIndex = findCurrentWordIndex(cardId) + 1;
-        setCardData(wordsData[nextWordIndex] || wordsData[0]);
+        showCard(wordsData[nextWordIndex] || wordsData[0]);
     }
 
     const shouldDisableGoToTrainingBtn = !isThereWordsToLearnInSet(wordsData);
@@ -330,7 +334,7 @@ const WordsPage = () => {
                 onRow={(record) => ({
                     onClick: event => {
                         if (event.target.nodeName === "TD") {
-                            setCardData(record)
+                            showCard(record);
                             showModal();
                         }
                     }

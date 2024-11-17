@@ -1,22 +1,18 @@
 import { Input, Select, Space } from "antd";
 
-//constants
+// Constants
 import { LOCALE_EN, LOCALE_PL } from "./constants";
 import { currentUserKey } from "../services/serviceConstants";
 
 const { Option } = Select;
 
-const appVoices = {};
 const GREEN_LIGHT = '#52c41a7a';
 const RED_LIGHT = '#ff00007a';
 const TRANSPARENT = 'transparent';
-const isShowImage = true;
 
 const isRuEnTraining = (key) => key === 'trainingRuEn';
 
 const isEnLocale = (locale) => locale === 'EN';
-
-const isPlLocale = (locale) => locale === 'PL';
 
 const getShuffleWords = (wordsData) => {
     return wordsData
@@ -107,8 +103,6 @@ export {
     isThereWordsToLearnInTraining,
     isThereWordsToLearnInSet,
     isEnLocale,
-    isPlLocale,
-    appVoices,
     getAnswerBtnBackgroundColor,
     getTitleForCard,
 }

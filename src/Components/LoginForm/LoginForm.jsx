@@ -1,6 +1,6 @@
 import { Form, Input, Button } from 'antd';
 
-//helpers
+// Helpers
 import { Logger } from "../../utils/logger";
 
 const MODULE_NAME = 'LoginForm';
