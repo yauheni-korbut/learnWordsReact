@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from 'react';
-import { Button, Card, Space } from 'antd';
+import { useEffect, useState } from 'react';
+import { Button, Card, Progress } from 'antd';
 
 // Components
 import { AnswersCollection } from "../AnswersCollection/AnswersCollections";
@@ -48,6 +48,20 @@ const TrainingWordPage = () => {
         amountLeftWordsToLearn: wordsToLearn.length,
     }
 
+    async function initWordsData() {
+        const { wordsLeftToLearn, allWordsData } = await getLeftWordsToLearn()
+        setStateTrainingWordPage({
+            ...stateTrainingWordPage,
+            wordsLeftToLearn: wordsLeftToLearn,
+            wordsData: allWordsData,
+            amountLeftWordsToLearn: wordsLeftToLearn.length,
+        })
+    }
+
+    useEffect(() => {
+        initWordsData();
+    }, [])
+
     const [stateTrainingWordPage, setStateTrainingWordPage] = useState(initialTrainingWordPageState);
 
     const { indexOfCurrentWord, currentWord } = stateTrainingWordPage;
@@ -63,27 +77,28 @@ const TrainingWordPage = () => {
     const showNextWord = () => {
         document.getElementsByTagName('img')[0].src = "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3RqcDhlOXd6Zjlxc3hmOG5uNTBlYnk2N3h2MWpuZWM0MHVtaGNoayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oEjI6SIIHBdRxXI40/giphy.gif"
         setTimeout(() => {
-            const nextIndex = indexOfCurrentWord + 1;
-            if (wordsToLearn[nextIndex]) {
-                setStateTrainingWordPage({
-                    ...stateTrainingWordPage,
-                    indexOfCurrentWord: nextIndex,
-                    currentWord: wordsToLearn[nextIndex],
-                })
-                return;
-            }
             getLeftWordsToLearn()
                 .then(({ wordsLeftToLearn, allWordsData }) => {
-                    const shuffledWordsToLearn = getShuffleWords(wordsLeftToLearn);
-                    setStateTrainingWordPage({
-                        ...stateTrainingWordPage,
-                        indexOfCurrentWord: 0,
-                        currentWord: shuffledWordsToLearn[0] || stateTrainingWordPage.currentWord,
-                        isResultTrainingModalVisible: true,
-                        wordsLeftToLearn: shuffledWordsToLearn,
-                        wordsData: allWordsData,
-                        amountLeftWordsToLearn: shuffledWordsToLearn.length,
-                    })
+                    const nextIndex = indexOfCurrentWord + 1;
+                    if (wordsToLearn[nextIndex]) {
+                        setStateTrainingWordPage({
+                            ...stateTrainingWordPage,
+                            indexOfCurrentWord: nextIndex,
+                            currentWord: wordsToLearn[nextIndex],
+                            amountLeftWordsToLearn: wordsLeftToLearn.length,
+                        })
+                    } else {
+                        const shuffledWordsToLearn = getShuffleWords(wordsLeftToLearn);
+                        setStateTrainingWordPage({
+                            ...stateTrainingWordPage,
+                            indexOfCurrentWord: 0,
+                            currentWord: shuffledWordsToLearn[0] || stateTrainingWordPage.currentWord,
+                            isResultTrainingModalVisible: true,
+                            wordsLeftToLearn: shuffledWordsToLearn,
+                            wordsData: allWordsData,
+                            amountLeftWordsToLearn: shuffledWordsToLearn.length,
+                        })
+                    }
                 })
         }, 200)
     }
@@ -95,6 +110,10 @@ const TrainingWordPage = () => {
                 navigate('/words/trainings', { state: { wordsData, set: { setId, setTitle, setLocale } } } );
         })
     }
+
+    const amountWordsToLearn =  stateTrainingWordPage.amountLeftWordsToLearn;
+    const learnedWords =  wordsData.length - amountWordsToLearn;
+    const learnedWordsPercent =  (learnedWords / wordsData.length) * 100;
 
 
     return (
@@ -124,14 +143,13 @@ const TrainingWordPage = () => {
                     <AnswersCollection wordsData={wordsData} trainingKey={trainingKey} currentWord={currentWord} answersArray={answersArray} setId={setId} setLocale={setLocale}/>
                 </Card>
             </div>
-            <Space style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-                <div style={{ width: "100%", textAlign: "end", marginTop: 10 }}>
-                    <Button danger onClick={handleCloseTraining}>Close the training</Button>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginTop: 10 }}>
+                <Button danger onClick={handleCloseTraining}>Close the training</Button>
+                <div style={{ width: '50%', display: 'flex', alignItems: 'center' }}>
+                    <Progress percent={learnedWordsPercent} format={() => `${learnedWords} of ${wordsData.length} words learned`} size="large" />
                 </div>
-                <div style={{ width: "100%", textAlign: "end", marginTop: 10 }}>
-                    <Button type="primary" onClick={showNextWord}>Next word</Button>
-                </div>
-            </Space>
+                <Button type="primary" onClick={showNextWord}>Next word</Button>
+            </div>
             <ResultModalWithRouter
                 wordsData={wordsData}
                 trainingKey={trainingKey}
