@@ -47,6 +47,9 @@ const WordsPage = () => {
     const [cardWord, setCardWord] = useState('');
     const [cardTranscription, setCardTranscription] = useState('');
     const [cardMeaning, setCardMeaning] = useState('');
+    const [example1, setExample1] = useState('');
+    const [example2, setExample2] = useState('');
+    const [example3, setExample3] = useState('');
     const [cardId, setCardId] = useState();
 
     const { speak, appVoices } = useSpeechSynthesis();
@@ -269,6 +272,11 @@ const WordsPage = () => {
         fontWeight: 600,
         letterSpacing: 5,
     }
+    const exampleWordStyles= {
+        fontSize: 20,
+        fontWeight: 400,
+        letterSpacing: 3,
+    }
 
     const findCurrentWordIndex = (cardId) => {
         return wordsData.findIndex(wordData => wordData.id === cardId);
@@ -278,6 +286,9 @@ const WordsPage = () => {
         setCardWord(wordData.word);
         setCardTranscription(wordData.transcription);
         setCardMeaning(wordData.meaning);
+        setExample1(wordData.example1);
+        setExample2(wordData.example2);
+        setExample3(wordData.example3);
         setCardId(wordData.id);
     }
 
@@ -388,6 +399,10 @@ const WordsPage = () => {
                         {`[ ${cardTranscription} ]`}
                     </Button>
                     <div style={ cardWordStyles }>{`${cardMeaning}`}</div>
+                    <div style={ exampleWordStyles }></div>
+                    <div style={ exampleWordStyles }>{`${example1}`}</div>
+                    <div style={ exampleWordStyles }>{`${example2}`}</div>
+                    <div style={ exampleWordStyles }>{`${example3}`}</div>
                 </Card>
                 <Button  type="text" icon={<RightOutlined />} onClick={nextWord}/>
             </Modal>

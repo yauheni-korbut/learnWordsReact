@@ -8,7 +8,7 @@ import { wordService } from "../../../services/wordService";
 import { currentUserKey } from "../../../services/serviceConstants";
 
 const { TextArea } = Input;
-const REG_EXP_TO_SPLIT_ADDED_WORDS = /[\[\]]/g; // split by [ ]
+const REG_EXP_TO_SPLIT_ADDED_WORDS = /\t/; // split by [ ]
 
 const ButtonModalAddWords = ({ setId, updateWordsPage }) => {
     const [visible, setVisible] = useState(false);
@@ -36,8 +36,8 @@ const ButtonModalAddWords = ({ setId, updateWordsPage }) => {
             })
     };
 
-    const wordDataToObj = ([ word, transcription, meaning ]) => {
-        return { word, transcription, meaning }
+    const wordDataToObj = ([ word, transcription, meaning, example1, example2, example3 ]) => {
+        return { word, transcription, meaning, example1, example2, example3 }
     }
 
     const getParsedNewWords = () => {
