@@ -1,4 +1,5 @@
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Layout } from "antd";
 
 import { AppHeader } from "./Components/Header/AppHeader";
@@ -12,31 +13,34 @@ import './App.scss';
 const { Content, Footer } = Layout;
 
 function App() {
-    const keyHandlerTrainingWordPage = (e) => {
-        e.stopPropagation();
-        switch (e.keyCode) {
-            case 49:
-            case 50:
-            case 51:
-            case 52:
-            case 53:
-                document.getElementsByClassName('ant-card-grid')[e.keyCode - 49]?.click();
-                break;
-            case 13:
-                document.getElementsByClassName('ant-btn-primary')[0].click();
-                break;
-            default:
-                break;
-        }
-    }
+    useEffect(() => {
+        const keyHandlerTrainingWordPage = (e) => {
+            e.stopPropagation();
+            switch (e.keyCode) {
+                case 49:
+                case 50:
+                case 51:
+                case 52:
+                case 53:
+                    document.getElementsByClassName('ant-card-grid')[e.keyCode - 49]?.click();
+                    break;
+                case 13:
+                    document.getElementsByClassName('ant-btn-primary')[0]?.click();
+                    break;
+                default:
+                    break;
+            }
+        };
 
-    window.addEventListener("keydown", keyHandlerTrainingWordPage);
+        window.addEventListener("keydown", keyHandlerTrainingWordPage);
+        return () => window.removeEventListener("keydown", keyHandlerTrainingWordPage);
+    }, []);
 
     return (
         <BrowserRouter>
             <Layout>
                 <AppHeader />
-                <Content className="site-layout" style={{ padding: '0 50px', marginTop: 64 }}>
+                <Content className="site-layout">
                     <Routes>
                         <Route exact path='/' element = { <MainPageContainer /> }></Route>
                         <Route path='/home' element = { <MainPageContainer /> }></Route>
@@ -46,7 +50,7 @@ function App() {
                         <Route path='/words/trainings/play' element = { <TrainingWordPage /> }></Route>
                     </Routes>
                 </Content>
-                <Footer style={{ textAlign: 'center' }}>App for learning words ©2024 Created by Yauheni Korbut & Iryna Ramanouskaya</Footer>
+                <Footer className="app-footer">App for learning words ©2024 Created by Yauheni Korbut</Footer>
             </Layout>
         </BrowserRouter>
     );

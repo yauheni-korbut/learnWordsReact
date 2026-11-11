@@ -8,10 +8,13 @@ const TrainingsPage = () => {
     const { wordsData, set: { setId, setTitle, setLocale } } = state;
 
     return (
-        <div
-            className="site-layout-background" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 24, minHeight: '82vh', marginTop: 16 }}>
-            <p style={{ marginBottom: 50, fontSize: 35 }}>{`Choose, witch training would you like to have with words from set "${setTitle}"`}</p>
-            <div style={{ display: 'flex', justifyContent: 'space-evenly', width: '100%' }}>
+        <div className="site-layout-background training-modes-page">
+            <div className="training-page-heading">
+                <span className="eyebrow">YOUR PRACTICE</span>
+                <h1>Choose a training mode</h1>
+                <p>Pick a direction to review words from <strong>{setTitle}</strong>.</p>
+            </div>
+            <div className="training-modes-grid">
                 <TrainingCardWithRouter title={`RU -> ${setLocale}`} wordsData={wordsData} trainingKey={'trainingRuEn'} setId={setId} setTitle={setTitle} setLocale={setLocale} />
                 <TrainingCardWithRouter title={`${setLocale} -> RU`} wordsData={wordsData} trainingKey={'trainingEnRu'} setId={setId} setTitle={setTitle} setLocale={setLocale} />
             </div>

@@ -1,12 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Card, Popconfirm, Progress } from "antd";
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { useEffect, useState } from "react";
+import { Card, message } from "antd";
 
-// Helpers
-import { getShuffleWords } from "../../../utils/Helpers";
-import { Logger } from "../../../utils/logger";
-
-const MODULE_NAME = 'TrainingCard'
+import { wordService } from "../../../services/wordService";
+import { getLoggedUserId, getShuffleWords } from "../../../utils/Helpers";
 
 const withRouter = WrappedComponent => props => {
     const location = useLocation();
@@ -15,64 +12,72 @@ const withRouter = WrappedComponent => props => {
 };
 
 const TrainingCard = ({ title, wordsData, trainingKey, setId, setTitle, setLocale }) => {
-
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const [dueWordCount, setDueWordCount] = useState(null);
 
-    const wordsToLearn = getShuffleWords(wordsData).filter(wordData => !wordData[trainingKey]);
-    const learnedWords = wordsData.length - wordsToLearn.length;
-    const successPercent = Math.floor(learnedWords / wordsData.length * 100);
+    useEffect(() => {
+        let isMounted = true;
+        wordService.previewTrainingRound({
+            userId: getLoggedUserId(), setId, trainingKey,
+        }).then(({ data }) => {
+            if (isMounted) setDueWordCount(data.wordCount);
+        }).catch(() => {
+            if (isMounted) setDueWordCount(null);
+        });
+        return () => { isMounted = false; };
+    }, [setId, trainingKey]);
 
     const textStyle = {
         fontSize: 25,
     }
 
-    const handleOpenTraining = () => {
-        if (!wordsToLearn.length) {
-            Logger.info(MODULE_NAME, 'handleOpenTraining', 'You already learn all words!');
-            return;
+    const handleOpenTraining = async () => {
+        if (isLoading || !wordsData.length) return;
+        setIsLoading(true);
+        try {
+            const { data } = await wordService.startTrainingRound({
+                userId: getLoggedUserId(), setId, trainingKey,
+            });
+            if (!data.words.length) {
+                message.info('There are no words in this set yet.');
+                return;
+            }
+            navigate('/words/trainings/play', { state: {
+                wordsData: data.allWords,
+                wordsToLearn: getShuffleWords(data.words),
+                round: data.round,
+                setId,
+                trainingKey,
+                title,
+                setTitle,
+                setLocale,
+            }});
+        } catch (error) {
+            message.error('Could not start training. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
-
-        const stateToPass = {
-            wordsData,
-            wordsToLearn,
-            setId,
-            trainingKey,
-            title,
-            setTitle,
-            setLocale,
-        }
-        navigate('/words/trainings/play', { state: stateToPass} );
     }
 
     return (
-        <Popconfirm
-            title="You already learn all words!"
-            icon={<InfoCircleOutlined />}
-            showCancel={false}
+        <Card
+            className="training-mode-card"
+            key={setId}
+            title={title}
+            style={{width: 300}}
+            headStyle={{backgroundColor: 'rgba(24,144,255,0.42)', fontSize: 30}}
+            hoverable={wordsData.length > 0 && !isLoading}
+            onClick={handleOpenTraining}
+            loading={isLoading}
         >
-
-            <Card
-                key={setId}
-                title={title}
-                style={{width: 300}}
-                headStyle={{backgroundColor: 'rgba(24,144,255,0.42)', fontSize: 30}}
-                hoverable={true}
-                onClick={handleOpenTraining}
-            >
-                <p style={textStyle}>
-                    {`All words: ${wordsData.length}`}
-                </p>
-                <p style={textStyle}>
-                    {`Already learned: ${learnedWords}`}
-                </p>
-                <p style={textStyle}>
-                    {`To learn: ${wordsToLearn.length}`}
-                </p>
-                <div style={{width: '100%'}}>
-                    <Progress percent={successPercent} size="large" />
-                </div>
-            </Card>
-        </Popconfirm>
+            <p style={textStyle}>{dueWordCount === null
+                ? 'Words in next attempt: —'
+                : `Words in next attempt: ${dueWordCount}`}</p>
+            <p style={{ ...textStyle, fontSize: 18 }}>
+                Review words are selected by your progress.
+            </p>
+        </Card>
     )
 }
 

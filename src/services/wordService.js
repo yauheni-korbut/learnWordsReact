@@ -5,6 +5,7 @@ import { Logger } from "../utils/logger";
 const MODULE_NAME = 'wordService';
 
 const getBasicApiEndpoint = (userId, setId) => `${apiUrl}/users/${userId}/sets/${setId}`;
+const getTrainingEndpoint = (userId, setId, trainingKey) => `${getBasicApiEndpoint(userId, setId)}/training/${trainingKey}`;
 
 const headers = {
     "Content-Type": "application/json",
@@ -16,7 +17,10 @@ const getAllSetWords = (userId, setId) => {
             Logger.info(MODULE_NAME, 'getAllSetWords', words);
             return words;
         })
-        .catch(error => Logger.error(MODULE_NAME, 'getAllSetWords', error));
+        .catch(error => {
+            Logger.error(MODULE_NAME, 'getAllSetWords', error);
+            throw error;
+        });
 };
 
 const createWord = ({ userId, setId, body }) => {
@@ -38,12 +42,27 @@ const deleteWord = ({ userId, setId, wordId }) => {
     return http.delete(`${getBasicApiEndpoint(userId, setId)}/words/${wordId}`);
 }
 
+const startTrainingRound = ({ userId, setId, trainingKey }) => {
+    return http.post(`${getTrainingEndpoint(userId, setId, trainingKey)}/start`, {});
+}
+
+const previewTrainingRound = ({ userId, setId, trainingKey }) => {
+    return http.get(`${getTrainingEndpoint(userId, setId, trainingKey)}/preview`);
+}
+
+const submitTrainingAnswer = ({ userId, setId, wordId, trainingKey, round, correct }) => {
+    return http.put(`${getTrainingEndpoint(userId, setId, trainingKey)}/words/${wordId}`, { round, correct });
+}
+
 const wordService = {
     getAllSetWords,
     createWord,
     updateWord,
     deleteWord,
     resetWordsProgress,
+    startTrainingRound,
+    previewTrainingRound,
+    submitTrainingAnswer,
 }
 
 export {

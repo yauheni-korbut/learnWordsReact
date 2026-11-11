@@ -1,167 +1,133 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from 'react';
-import { Button, Card, Progress } from 'antd';
+import { Button, Card, message, Progress } from 'antd';
 
-// Components
 import { AnswersCollection } from "../AnswersCollection/AnswersCollections";
 import { ResultModalWithRouter } from "../ResultModal/ResultModal";
+import { getImgURL, getShuffleWords, getTitleForCard } from '../../../utils/Helpers';
 
-// Services
-import { wordService } from "../../../services/wordService";
-
-// Helpers
-import { getShuffleWords, getTitleForCard } from '../../../utils/Helpers';
-import { Logger } from "../../../utils/logger";
-
-// Constants
-import { currentUserKey } from "../../../services/serviceConstants";
-
-const MODULE_NAME = 'TrainingWordPage';
+const TRAINING_PLACEHOLDER_IMAGE = "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3RqcDhlOXd6Zjlxc3hmOG5uNTBlYnk2N3h2MWpuZWM0MHVtaGNoayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oEjI6SIIHBdRxXI40/giphy.gif";
 
 const getAnswersForCurrentWord = (currentWord, wordsData) => {
-    const copyWordsData = [...wordsData];
-    const currentWordIndex = copyWordsData.findIndex(item => item.id === currentWord.id);
-    const answers = copyWordsData.splice(currentWordIndex, 1);
-
-    while (wordsData.length > 5 ? (answers.length < 5) : (answers.length < wordsData.length)) {
-        const index = Math.floor(Math.random() * copyWordsData.length);
-        answers.push(...copyWordsData.splice(index, 1));
+    const remainingWords = wordsData.filter(word => word.id !== currentWord.id);
+    const answers = [currentWord];
+    while (answers.length < Math.min(5, wordsData.length) && remainingWords.length) {
+        const index = Math.floor(Math.random() * remainingWords.length);
+        answers.push(...remainingWords.splice(index, 1));
     }
-
     return getShuffleWords(answers);
 }
 
 const TrainingWordPage = () => {
-    const userId = JSON.parse(localStorage.getItem(currentUserKey)).id;
-
     const navigate = useNavigate();
-
     const { state } = useLocation();
-    const { wordsData, wordsToLearn, setId, trainingKey, title, setTitle, setLocale } = state;
-
-    const initialTrainingWordPageState = {
-        indexOfCurrentWord: 0,
-        currentWord: wordsToLearn[0],
-        isResultTrainingModalVisible: false,
-        wordsLeftToLearn: wordsToLearn,
-        wordsData,
-        amountLeftWordsToLearn: wordsToLearn.length,
-    }
-
-    async function initWordsData() {
-        const { wordsLeftToLearn, allWordsData } = await getLeftWordsToLearn()
-        setStateTrainingWordPage({
-            ...stateTrainingWordPage,
-            wordsLeftToLearn: wordsLeftToLearn,
-            wordsData: allWordsData,
-            amountLeftWordsToLearn: wordsLeftToLearn.length,
-        })
-    }
+    const {
+        wordsData = [], wordsToLearn = [], round, setId,
+        trainingKey, title, setTitle, setLocale,
+    } = state || {};
+    const [indexOfCurrentWord, setIndexOfCurrentWord] = useState(0);
+    const [isCurrentWordAnswered, setIsCurrentWordAnswered] = useState(false);
+    const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
+    const [isResultTrainingModalVisible, setIsResultTrainingModalVisible] = useState(false);
 
     useEffect(() => {
-        initWordsData();
-    }, [])
+        setIndexOfCurrentWord(0);
+        setIsCurrentWordAnswered(false);
+        setIsAnswerRevealed(false);
+        setIsResultTrainingModalVisible(false);
+    }, [setId, trainingKey, round]);
 
-    const [stateTrainingWordPage, setStateTrainingWordPage] = useState(initialTrainingWordPageState);
+    const currentWord = wordsToLearn[indexOfCurrentWord];
+    const answersArray = useMemo(
+        () => currentWord ? getAnswersForCurrentWord(currentWord, wordsData) : [],
+        [currentWord, wordsData]
+    );
 
-    const { indexOfCurrentWord, currentWord } = stateTrainingWordPage;
-
-    const answersArray = getAnswersForCurrentWord(currentWord, wordsData);
-
-    const getLeftWordsToLearn = async () => {
-        const { data } = await wordService.getAllSetWords(userId, setId);
-        const wordsLeftToLearn = data.filter(wordData => !wordData[trainingKey]);
-        return { wordsLeftToLearn, allWordsData: data};
+    if (!state || !currentWord) {
+        return (
+            <div className="site-layout-background" style={{ padding: 24, minHeight: '82vh', marginTop: 16 }}>
+                <p>There are no words in this training round.</p>
+                <Button onClick={() => navigate('/sets')}>Back to sets</Button>
+            </div>
+        );
     }
 
-    const showNextWord = () => {
-        document.getElementsByTagName('img')[0].src = "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3RqcDhlOXd6Zjlxc3hmOG5uNTBlYnk2N3h2MWpuZWM0MHVtaGNoayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oEjI6SIIHBdRxXI40/giphy.gif"
-        setTimeout(() => {
-            getLeftWordsToLearn()
-                .then(({ wordsLeftToLearn, allWordsData }) => {
-                    const nextIndex = indexOfCurrentWord + 1;
-                    if (wordsToLearn[nextIndex]) {
-                        setStateTrainingWordPage({
-                            ...stateTrainingWordPage,
-                            indexOfCurrentWord: nextIndex,
-                            currentWord: wordsToLearn[nextIndex],
-                            amountLeftWordsToLearn: wordsLeftToLearn.length,
-                        })
-                    } else {
-                        const shuffledWordsToLearn = getShuffleWords(wordsLeftToLearn);
-                        setStateTrainingWordPage({
-                            ...stateTrainingWordPage,
-                            indexOfCurrentWord: 0,
-                            currentWord: shuffledWordsToLearn[0] || stateTrainingWordPage.currentWord,
-                            isResultTrainingModalVisible: true,
-                            wordsLeftToLearn: shuffledWordsToLearn,
-                            wordsData: allWordsData,
-                            amountLeftWordsToLearn: shuffledWordsToLearn.length,
-                        })
-                    }
-                })
-        }, 200)
-    }
+    const reviewedWords = indexOfCurrentWord + (isCurrentWordAnswered ? 1 : 0);
+    const reviewedPercent = Math.round((reviewedWords / wordsToLearn.length) * 100);
+
+    const handleNextWord = () => {
+        if (!isCurrentWordAnswered) {
+            message.info('Choose an answer before moving to the next word.');
+            return;
+        }
+        if (indexOfCurrentWord + 1 < wordsToLearn.length) {
+            setIndexOfCurrentWord(indexOfCurrentWord + 1);
+            setIsCurrentWordAnswered(false);
+            setIsAnswerRevealed(false);
+            return;
+        }
+        setIsResultTrainingModalVisible(true);
+    };
 
     const handleCloseTraining = () => {
-        Logger.info(MODULE_NAME, 'handleCloseTraining');
-        getLeftWordsToLearn()
-            .then(({ allWordsData: wordsData }) => {
-                navigate('/words/trainings', { state: { wordsData, set: { setId, setTitle, setLocale } } } );
-        })
-    }
-
-    const amountWordsToLearn =  stateTrainingWordPage.amountLeftWordsToLearn;
-    const learnedWords =  wordsData.length - amountWordsToLearn;
-    const learnedWordsPercent =  (learnedWords / wordsData.length) * 100;
-
+        navigate('/words/trainings', { state: { wordsData, set: { setId, setTitle, setLocale } } });
+    };
 
     return (
-        <div className="site-layout-background"
+        <div className="site-layout-background training-play-page"
              style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 24, minHeight: '82vh', marginTop: 16 }}
-             tabIndex="0"
-        >
-            <p style={{ marginBottom: 20, fontSize: 30 }}>{`${title} training for set '${setTitle}'`}</p>
-            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                <Card style={{ width: "60%" }} >
-                    <div   style={{ width: "90%", height: 400, overflow: "hidden" }}>
+             tabIndex="0">
+            <div className="training-question-layout" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <Card className="training-visual-card" style={{ width: "60%" }}>
+                    <div style={{ width: "90%", height: 400, overflow: "hidden" }}>
                         <img
                             style={{ width: "100%", height: "100%", objectFit: "contain" }}
                             alt={currentWord.meaning}
-                            src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3RqcDhlOXd6Zjlxc3hmOG5uNTBlYnk2N3h2MWpuZWM0MHVtaGNoayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oEjI6SIIHBdRxXI40/giphy.gif"
+                            src={isAnswerRevealed ? getImgURL(currentWord.meaning) : TRAINING_PLACEHOLDER_IMAGE}
                         />
                     </div>
                 </Card>
-                <Card title={ getTitleForCard(trainingKey, currentWord) }
+                <Card className="training-answer-card" title={getTitleForCard(trainingKey, currentWord)}
                       style={{ width: "60%", textAlign: 'center', fontSize: "25px" }}
-                      headStyle={{
-                          backgroundColor: 'rgba(24,144,255,0.42)',
-                          textAlign: 'center',
-                      }}
-                      key={currentWord.id}
-                >
-                    <AnswersCollection wordsData={wordsData} trainingKey={trainingKey} currentWord={currentWord} answersArray={answersArray} setId={setId} setLocale={setLocale}/>
+                      headStyle={{ backgroundColor: 'rgba(24,144,255,0.42)', textAlign: 'center' }}
+                      key={`${round}-${currentWord.id}`}>
+                    <AnswersCollection
+                        key={`${round}-${currentWord.id}`}
+                        wordsData={wordsData}
+                        trainingKey={trainingKey}
+                        currentWord={currentWord}
+                        answersArray={answersArray}
+                        setId={setId}
+                        setLocale={setLocale}
+                        round={round}
+                        onAnswerSaved={() => setIsCurrentWordAnswered(true)}
+                        onAnswerRevealed={setIsAnswerRevealed}
+                    />
                 </Card>
             </div>
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginTop: 10 }}>
+            <div className="training-play-controls" style={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginTop: 10 }}>
                 <Button danger onClick={handleCloseTraining}>Close the training</Button>
-                <div style={{ width: '50%', display: 'flex', alignItems: 'center' }}>
-                    <Progress percent={learnedWordsPercent} format={() => `${learnedWords} of ${wordsData.length} words learned`} size="large" />
+                <div className="training-progress-wrap">
+                    <span className="training-progress-label">{`${reviewedWords} of ${wordsToLearn.length} words reviewed`}</span>
+                    <Progress percent={reviewedPercent} showInfo={false} size="large" />
                 </div>
-                <Button type="primary" onClick={showNextWord}>Next word</Button>
+                <Button type="primary" onClick={handleNextWord} disabled={!isCurrentWordAnswered}>
+                    {indexOfCurrentWord + 1 < wordsToLearn.length ? 'Next word' : 'Finish round'}
+                </Button>
             </div>
             <ResultModalWithRouter
+                visible={isResultTrainingModalVisible}
                 wordsData={wordsData}
                 trainingKey={trainingKey}
                 title={title}
                 setId={setId}
                 setTitle={setTitle}
                 setLocale={setLocale}
-                stateTrainingWordPage={stateTrainingWordPage}
-                setStateTrainingWordPage={setStateTrainingWordPage}
+                round={round}
+                dueWordCount={wordsToLearn.length}
+                onClose={() => setIsResultTrainingModalVisible(false)}
             />
         </div>
-
     )
 }
 

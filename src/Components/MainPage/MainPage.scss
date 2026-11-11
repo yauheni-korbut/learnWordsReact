@@ -1,4 +1,88 @@
-//content everywhere
-.site-layout .site-layout-background {
-    background: #fff;
+.main-page-panel {
+    display: grid;
+    min-height: 62vh !important;
+    padding: clamp(28px, 7vw, 76px) 24px !important;
+    place-items: center;
+}
+
+.welcome-content {
+    width: min(100%, 480px);
+    text-align: center;
+}
+
+.welcome-content .eyebrow {
+    color: #5968d9;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 0.15em;
+}
+
+.welcome-content h1 {
+    margin: 10px 0;
+    color: #1b2740;
+    font-size: clamp(30px, 5vw, 46px);
+    font-weight: 750;
+    letter-spacing: -0.05em;
+}
+
+.welcome-content > p {
+    margin-bottom: 28px;
+    color: #718096;
+    font-size: 16px;
+}
+
+.login-form {
+    display: flex;
+    width: min(100%, 420px);
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.login-form .ant-form-item {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.login-form .ant-form-item-row {
+    display: block;
+}
+
+.login-form .ant-form-item-label,
+.login-form .ant-form-item-control {
+    width: 100%;
+    max-width: 100%;
+    text-align: left;
+}
+
+.login-form .ant-form-item-label {
+    padding: 0 0 6px;
+}
+
+.login-form .ant-form-item-label > label {
+    color: #43506a;
+    font-weight: 650;
+}
+
+.login-form .login-form-submit .ant-form-item-control-input-content {
+    display: flex;
+    justify-content: center;
+}
+
+.login-form .login-form-submit .ant-btn {
+    min-width: 150px;
+    height: 44px;
+}
+
+.hello-page h1 {
+    color: #1b2740;
+    font-size: clamp(30px, 5vw, 44px);
+    font-weight: 750;
+    letter-spacing: -0.045em;
+}
+
+.hello-page p {
+    margin-bottom: 26px;
+    color: #718096;
+    font-size: 16px;
 }

@@ -1,40 +1,563 @@
 @import 'antd/dist/antd.css';
 
-.App {
+:root {
+  --app-ink: #1b2740;
+  --app-muted: #718096;
+  --app-accent: #5968d9;
+  --app-accent-dark: #4655c5;
+  --app-surface: #ffffff;
+  --app-line: #e7ebf3;
+  --app-shadow: 0 16px 45px rgba(29, 42, 75, 0.07);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color: var(--app-ink);
+  background:
+    radial-gradient(circle at 12% 4%, rgba(116, 133, 255, 0.09), transparent 27rem),
+    #f4f6fb;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#root,
+.ant-layout {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.app-header.ant-layout-header {
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 68px;
+  padding: 0 clamp(18px, 4vw, 54px);
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(226, 231, 241, 0.9);
+  box-shadow: 0 5px 24px rgba(29, 42, 75, 0.04);
+  backdrop-filter: blur(14px);
+}
+
+.app-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1320px;
+  height: 100%;
+  margin: 0 auto;
+}
+
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--app-ink);
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.04em;
+}
+
+.app-brand:hover {
+  color: var(--app-accent);
+}
+
+.app-brand-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  color: white;
+  background: linear-gradient(145deg, #7581f5, #4e5ed0);
+  border-radius: 11px;
+  box-shadow: 0 6px 14px rgba(89, 104, 217, 0.25);
+}
+
+.app-menu.ant-menu-horizontal {
+  min-width: 190px;
+  justify-content: flex-end;
+  color: #64718a;
+  background: transparent;
+  border-bottom: 0;
+  font-weight: 600;
+}
+
+.app-menu.ant-menu-horizontal > .ant-menu-item {
+  top: 0;
+  margin: 0 0 0 8px;
+  padding: 0 16px;
+  border-radius: 10px;
+}
+
+.app-menu.ant-menu-horizontal > .ant-menu-item::after {
+  display: none;
+}
+
+.app-menu.ant-menu-horizontal > .ant-menu-item-selected,
+.app-menu.ant-menu-horizontal > .ant-menu-item:hover {
+  color: var(--app-accent);
+  background: #f0f2ff;
+}
+
+.site-layout {
+  width: 100%;
+  max-width: 1320px;
+  min-height: calc(100vh - 126px);
+  margin: 0 auto;
+  padding: 92px 32px 34px;
+}
+
+.site-layout .site-layout-background {
+  background: var(--app-surface) !important;
+  border: 1px solid rgba(229, 234, 243, 0.9);
+  border-radius: 22px;
+  box-shadow: var(--app-shadow);
+}
+
+.site-layout-background {
+  color: var(--app-ink);
+}
+
+.app-footer.ant-layout-footer {
+  padding: 18px 20px 24px;
+  color: #8a94a8;
+  background: transparent;
+  font-size: 12px;
+}
+
+.ant-btn {
+  min-height: 38px;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: none;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.ant-btn-primary {
+  color: #fff;
+  background: var(--app-accent);
+  border-color: var(--app-accent);
+  box-shadow: 0 6px 14px rgba(89, 104, 217, 0.16);
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background: var(--app-accent-dark);
+  border-color: var(--app-accent-dark);
+  transform: translateY(-1px);
+}
+
+.ant-input,
+.ant-select-selector {
+  border-color: var(--app-line) !important;
+  border-radius: 10px !important;
+}
+
+.ant-input:focus,
+.ant-input-focused,
+.ant-select-focused .ant-select-selector {
+  border-color: #929cf0 !important;
+  box-shadow: 0 0 0 3px rgba(89, 104, 217, 0.1) !important;
+}
+
+.ant-card {
+  color: var(--app-ink);
+  border: 1px solid var(--app-line);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(29, 42, 75, 0.055);
+}
+
+.ant-card-head {
+  color: var(--app-ink);
+  border-bottom-color: #edf0f6;
+}
+
+.ant-card-hoverable {
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.ant-card-hoverable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 34px rgba(29, 42, 75, 0.11);
+}
+
+.set-card {
+  overflow: hidden;
+}
+
+.set-card .ant-card-cover img {
+  height: 142px;
+  object-fit: cover;
+}
+
+.set-card-cover {
+  position: relative;
+  display: flex;
+  height: 142px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.96);
+  background: linear-gradient(135deg, #5766d6 0%, #7486ed 55%, #99a6f6 100%);
+}
+
+.set-card-cover::after {
+  position: absolute;
+  top: -74px;
+  right: -35px;
+  width: 190px;
+  height: 190px;
+  background: rgba(255, 255, 255, 0.11);
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 50%;
+  content: "";
+}
+
+.set-card-cover > .anticon {
+  font-size: 52px;
+  filter: drop-shadow(0 6px 10px rgba(28, 40, 111, 0.22));
+}
+
+.set-card-cover-label,
+.set-card-cover-locale {
+  position: absolute;
+  z-index: 1;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+}
+
+.set-card-cover-label {
+  top: 16px;
+  left: 18px;
+}
+
+.set-card-cover-locale {
+  right: 17px;
+  bottom: 14px;
+  font-size: 12px;
+}
+
+.set-card-avatar.ant-avatar {
+  color: #5665cf;
+  background: #edf0ff;
+}
+
+.set-card .ant-card-actions {
+  border-top-color: #edf0f6;
+}
+
+.training-modes-page {
+  min-height: 62vh !important;
+  padding: clamp(28px, 5vw, 58px) !important;
+}
+
+.training-page-heading {
+  margin: 0 auto 34px;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.training-page-heading .eyebrow {
+  color: var(--app-accent);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.15em;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.training-page-heading h1 {
+  margin: 9px 0 8px;
+  color: var(--app-ink);
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 750;
+  letter-spacing: -0.045em;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.training-page-heading p {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 16px;
+}
+
+.training-modes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 330px));
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  gap: 22px;
 }
 
-.App-link {
-  color: #61dafb;
+.training-mode-card {
+  width: 100% !important;
+  min-height: 220px;
+  cursor: pointer;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.training-mode-card .ant-card-head {
+  min-height: 64px;
+  background: linear-gradient(105deg, #eef0ff, #f6f7ff) !important;
+}
+
+.training-mode-card .ant-card-head-title {
+  color: #3646b2;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.training-mode-card .ant-card-body {
+  padding: 24px;
+}
+
+.training-mode-card .ant-card-body p:first-child {
+  margin-bottom: 12px;
+  color: var(--app-ink);
+  font-size: 20px !important;
+  font-weight: 700;
+}
+
+.training-mode-card .ant-card-body p:last-child {
+  color: var(--app-muted);
+  line-height: 1.55;
+}
+
+.training-play-page {
+  height: 100% !important;
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  gap: 10px;
+  padding: 12px !important;
+}
+
+.training-question-layout {
+  height: auto;
+  max-width: 1080px;
+  min-height: 520px;
+  max-height: none;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.training-question-layout > .ant-card {
+  width: 50% !important;
+  height: auto;
+}
+
+.training-question-layout > .training-visual-card {
+  min-height: 520px;
+}
+
+.training-visual-card .ant-card-body {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  padding: 12px;
+  place-items: center;
+  background: linear-gradient(145deg, #f6f7ff, #f2f7fb);
+}
+
+.training-visual-card .ant-card-body > div {
+  width: 100% !important;
+  height: min(40vh, 360px) !important;
+}
+
+.training-visual-card img {
+  border-radius: 12px;
+}
+
+.training-answer-card .ant-card-head {
+  min-height: 60px;
+  background: #f1f3ff !important;
+}
+
+.training-answer-card .ant-card-head-title {
+  padding: 11px 0;
+  min-width: 0;
+  overflow: visible;
+  white-space: normal;
+}
+
+.training-answer-card .ant-card-head-title > div {
+  font-size: 32px !important;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.training-answer-card .ant-card-body {
+  padding: 7px 12px 10px;
+}
+
+.training-answer-card .ant-card-grid {
+  min-height: 44px;
+  padding: 8px 12px !important;
+  font-size: 27px !important;
+  line-height: 1.15;
+  border-color: #edf0f6;
+  transition: background-color 140ms ease, box-shadow 140ms ease;
+}
+
+.training-answer-card .ant-card-grid:hover {
+  box-shadow: inset 0 0 0 1px rgba(89, 104, 217, 0.24);
+}
+
+.training-example-list {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 18px 22px 16px;
+  color: #58657c;
+  background: #f7f8fc;
+  border-radius: 12px;
+  font-size: 20px;
+  line-height: 1.45;
+}
+
+.training-example-heading {
+  margin-bottom: 9px;
+  color: #5968d9;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.training-example-list p {
+  margin: 0 0 8px;
+}
+
+.training-example-list p:last-child {
+  margin-bottom: 0;
+}
+
+.training-play-controls {
+  display: grid !important;
+  grid-template-columns: auto minmax(180px, 1fr) auto;
+  max-width: 1080px;
+  align-items: center;
+  gap: 12px;
+  margin-top: 0 !important;
+}
+
+.training-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  width: auto !important;
+}
+
+.training-progress-label {
+  flex-shrink: 0;
+  color: #68758d;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.training-progress-wrap .ant-progress {
+  flex: 1;
+  min-width: 80px;
+}
+
+.training-play-controls > .ant-btn {
+  flex-shrink: 0;
+}
+
+.ant-table-wrapper {
+  overflow: hidden;
+  border: 1px solid var(--app-line);
+  border-radius: 14px;
+}
+
+.ant-table-thead > tr > th {
+  color: #53617a;
+  background: #f7f8fc;
+  font-weight: 700;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: #f8f9ff;
+}
+
+@media (max-width: 680px) {
+  .site-layout {
+    padding: 82px 14px 24px;
   }
-  to {
-    transform: rotate(360deg);
+
+  .app-header.ant-layout-header {
+    padding: 0 16px;
+  }
+
+  .app-menu.ant-menu-horizontal {
+    min-width: 0;
+  }
+
+  .app-menu.ant-menu-horizontal > .ant-menu-item {
+    margin-left: 0;
+    padding: 0 11px;
+  }
+
+  .training-modes-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .training-modes-page {
+    padding: 26px 18px !important;
+  }
+
+  .training-question-layout {
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+    min-height: 0;
+  }
+
+  .training-question-layout > .ant-card {
+    width: 100% !important;
+  }
+
+  .training-question-layout > .training-visual-card {
+    height: 150px;
+    min-height: 150px;
+  }
+
+  .training-visual-card .ant-card-body {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .training-visual-card .ant-card-body > div {
+    height: 120px !important;
+  }
+
+  .training-question-layout > .training-answer-card {
+    height: auto;
+    min-height: 360px;
+  }
+
+  .training-example-list {
+    min-height: 0;
+    padding: 12px 14px;
+    font-size: 16px;
+  }
+
+  .training-answer-card .ant-card-head-title > div {
+    font-size: 26px !important;
+  }
+
+  .training-answer-card .ant-card-grid {
+    min-height: 40px;
+    font-size: 22px !important;
+  }
+
+  .training-play-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .training-progress-wrap {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 }

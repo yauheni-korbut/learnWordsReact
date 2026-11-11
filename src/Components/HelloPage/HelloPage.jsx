@@ -1,13 +1,10 @@
 import { Button } from "antd";
 
-const MODULE_NAME = 'HelloPage';
-
 const HelloPage = ({ userName, logoutUser }) => {
     return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div style={{ fontSize: 30, marginBottom: 16 }}>
-                {`Hello, ${userName}`}
-            </div>
+        <div className="hello-page" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <h1>{`Hello, ${userName}`}</h1>
+            <p>Ready to keep your vocabulary growing?</p>
             <Button type="primary" onClick={logoutUser} >Log out</Button>
         </div>
     )

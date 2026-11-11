@@ -67,7 +67,7 @@ const isThereWordsToLearnInTraining = (wordsData = [], trainingKey) => {
 }
 
 const isThereWordsToLearnInSet = (wordsData) => {
-    return isThereWordsToLearnInTraining(wordsData,'trainingRuEn') || isThereWordsToLearnInTraining(wordsData,'trainingEnRu');
+    return Boolean(wordsData && wordsData.length);
 }
 
 const getAnswerBtnBackgroundColor = (isAnswerChosen, isThisBtnWasChosen, isThisBtnChosenAsCorrectAnswer, isThisBtnShouldBeCorrectAnswer ) => {

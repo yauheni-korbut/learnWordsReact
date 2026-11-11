@@ -17,15 +17,9 @@ const LoginForm = ({ loginUser }) => {
         Logger.error(MODULE_NAME, 'onFinishFailed', JSON.stringify(errorInfo))
     };
 
-    const formStyles = {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-    }
-
     return (
         <Form
-            style={formStyles}
+            className="login-form"
             name="basic"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
@@ -46,7 +40,7 @@ const LoginForm = ({ loginUser }) => {
             >
                 <Input />
             </Form.Item>
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }} >
+            <Form.Item className="login-form-submit" >
                 <Button type="primary" htmlType="submit">
                     Log In
                 </Button>

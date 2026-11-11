@@ -1,5 +1,5 @@
 import { Card, Avatar, Modal, Checkbox } from 'antd';
-import { EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, ExclamationCircleOutlined, ReadOutlined } from '@ant-design/icons';
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { currentUserKey } from "../../../services/serviceConstants";
@@ -110,13 +110,15 @@ const SetCard = ({ set, updateSetsData, onSelectChange, isSelected }) => {
 
     return (
         <Card
+            className="set-card"
             key={id}
             style={styles}
             cover={
-                <img
-                    alt="example"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                />
+                <div className="set-card-cover">
+                    <span className="set-card-cover-label">VOCABULARY SET</span>
+                    <ReadOutlined />
+                    <span className="set-card-cover-locale">{locale}</span>
+                </div>
             }
             actions={[
                 <EditOutlined id="edit" onClick={handleCardEdit} />,
@@ -129,12 +131,12 @@ const SetCard = ({ set, updateSetsData, onSelectChange, isSelected }) => {
                     Select
                 </Checkbox>,
             ]}
-            hoverable='true'
+            hoverable
             onClick={handleCardClick}
         >
             <Meta
                 key={id}
-                avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
+                avatar={<Avatar className="set-card-avatar" icon={<ReadOutlined />} />}
                 title={`${title} (${locale})`}
             />
         </Card>

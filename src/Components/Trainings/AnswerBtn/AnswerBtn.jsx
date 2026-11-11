@@ -1,18 +1,19 @@
-import { Card } from "antd";
+import { useRef } from "react";
+import { Card, message } from "antd";
 
 // Components
 import { wordService } from '../../../services/wordService'
-import {currentUserKey} from "../../../services/serviceConstants";
 
 // Helpers
-import { isEnLocale, isRuEnTraining, getImgURL, getAnswerBtnBackgroundColor } from "../../../utils/Helpers";
+import { isEnLocale, isRuEnTraining, getAnswerBtnBackgroundColor, getLoggedUserId } from "../../../utils/Helpers";
 import {Logger} from "../../../utils/logger";
 import { useSpeechSynthesis } from '../../../hooks/useSpeechSynthesis';
 
 const MODULE_NAME = 'AnswerBtn';
 
-const AnswerBtn = ({ answerNumber, answerData, trainingKey, currentWord, setId, setLocale, answerCollectionState, setAnswerCollectionState, isThisBtnChosenAsCorrectAnswer, isThisBtnWasChosen, isThisBtnShouldBeCorrectAnswer }) => {
+const AnswerBtn = ({ answerNumber, answerData, trainingKey, currentWord, setId, setLocale, round, onAnswerSaved, onAnswerRevealed, answerCollectionState, setAnswerCollectionState, isThisBtnChosenAsCorrectAnswer, isThisBtnWasChosen, isThisBtnShouldBeCorrectAnswer }) => {
     const { speak, appVoices } = useSpeechSynthesis();
+    const isSubmittingAnswer = useRef(false);
 
     const answer = isRuEnTraining(trainingKey) ? answerData.word : answerData.meaning;
     const backgroundColor = getAnswerBtnBackgroundColor(answerCollectionState.isAnswerChosen, isThisBtnWasChosen, isThisBtnChosenAsCorrectAnswer, isThisBtnShouldBeCorrectAnswer);
@@ -27,28 +28,30 @@ const AnswerBtn = ({ answerNumber, answerData, trainingKey, currentWord, setId, 
 
     const voice = isEnLocale(setLocale) ? appVoices.englishVoice : appVoices.polishVoice;
 
-    const handleClickAnswer = (e) => {
+    const handleClickAnswer = async (e) => {
         e.stopPropagation();
-        document.getElementsByTagName('img')[0].src = getImgURL(document.getElementsByTagName('img')[0].alt);
+        if (answerCollectionState.isAnswerChosen || isSubmittingAnswer.current) return;
+        isSubmittingAnswer.current = true;
         const isRightAnswer = answerData.id === currentWord.id;
-        const userId = JSON.parse(localStorage.getItem(currentUserKey)).id;
-        const newWordsData = {
-            id: currentWord.id,
-            [trainingKey]: isRightAnswer,
-        }
-
         setAnswerCollectionState({
-            ...answerCollectionState,
             isAnswerChosen: true,
             chosenAnswerId: answerData.id,
         });
-
-        speak({ text: currentWord.word, voice })
-
-        if (isRightAnswer) {
-            wordService.updateWord({ userId, setId, body: newWordsData })
-                .then(() => Logger.info(MODULE_NAME, 'handleClickAnswer', 'word data was updated'))
-                .catch(error => Logger.error(MODULE_NAME, 'handleClickAnswer', 'word was not updated, error occur: ', error));
+        onAnswerRevealed(true);
+        speak({ text: currentWord.word, voice });
+        try {
+            await wordService.submitTrainingAnswer({
+                userId: getLoggedUserId(), setId, wordId: currentWord.id,
+                trainingKey, round, correct: isRightAnswer,
+            });
+            onAnswerSaved();
+        } catch (error) {
+            setAnswerCollectionState({ isAnswerChosen: false, chosenAnswerId: '' });
+            onAnswerRevealed(false);
+            Logger.error(MODULE_NAME, 'handleClickAnswer', error);
+            message.error('Your answer could not be saved. Please try again.');
+        } finally {
+            isSubmittingAnswer.current = false;
         }
     }
     return (

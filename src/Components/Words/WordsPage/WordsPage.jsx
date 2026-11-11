@@ -1,13 +1,10 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Table, Space, Button, Tooltip, Popconfirm, Input, Modal, Card, Tag } from 'antd';
+import { useCallback, useEffect, useState } from "react";
+import { Table, Space, Button, Tooltip, Popconfirm, Input, Modal, Card, Tag, message } from 'antd';
 import { DeleteOutlined, EditOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 
 // Services
 import { wordService } from "../../../services/wordService";
-
-// Constants
-import { currentUserKey } from "../../../services/serviceConstants";
 
 // Helpers
 import { isThereWordsToLearnInSet, isEnLocale, getImgURL, getLoggedUserId } from "../../../utils/Helpers";
@@ -58,15 +55,20 @@ const WordsPage = () => {
 
     const navigate = useNavigate();
 
-    async function getWordsData() {
-        const userId = JSON.parse(localStorage.getItem(currentUserKey)).id;
-        const { data } = await wordService.getAllSetWords(userId, setId);
-        setWordsData(data);
-    }
+    const getWordsData = useCallback(async () => {
+        try {
+            const response = await wordService.getAllSetWords(getLoggedUserId(), setId);
+            setWordsData(response?.data || []);
+        } catch (error) {
+            setWordsData([]);
+            Logger.error(MODULE_NAME, 'getWordsData', error);
+            message.error('Could not load this set’s words. Please try again.');
+        }
+    }, [setId]);
 
     useEffect(() => {
         getWordsData();
-    }, [])
+    }, [getWordsData]);
 
     const columns = [
         {
@@ -90,14 +92,14 @@ const WordsPage = () => {
             key: 'tags',
             width: 150,
             render: wordData => {
-                const getColor = (value) => value ? 'green' : 'volcano';
+                const getColor = (stage) => stage > 0 ? 'green' : 'volcano';
                 return (
                     <span>
-                    <Tag color={getColor(wordData.trainingEnRu)} key={0}>
-                        {`${setLocale} -> RU`}
+                    <Tag color={getColor(wordData.trainingEnRuStage)} key={0}>
+                        {`${setLocale} -> RU · step ${wordData.trainingEnRuStage || 0}`}
                     </Tag>
-                    <Tag color={getColor(wordData.trainingRuEn)} key={1}>
-                        {`RU -> ${setLocale}`}
+                    <Tag color={getColor(wordData.trainingRuEnStage)} key={1}>
+                        {`RU -> ${setLocale} · step ${wordData.trainingRuEnStage || 0}`}
                     </Tag>
                 </span>
                 )

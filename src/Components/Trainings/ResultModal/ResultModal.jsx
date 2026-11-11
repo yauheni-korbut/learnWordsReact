@@ -1,77 +1,65 @@
-import { Modal } from "antd";
-import { useLocation, useNavigate } from "react-router-dom";
-import { CheckCircleTwoTone } from '@ant-design/icons';
+import { useState } from "react";
+import { Modal, message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { wordService } from "../../../services/wordService";
+import { getLoggedUserId, getShuffleWords } from "../../../utils/Helpers";
 
-
-const withRouter = WrappedComponent => props => {
-    const location = useLocation();
-
-    return <WrappedComponent {...props} location={location} />;
-};
-
-const ResultModal = ({ wordsData, trainingKey, title, setId, setTitle, setLocale, stateTrainingWordPage, setStateTrainingWordPage }) => {
-
-    const { wordsLeftToLearn: wordsToLearn, isResultTrainingModalVisible, amountLeftWordsToLearn } = stateTrainingWordPage;
+const ResultModal = ({ visible, wordsData, trainingKey, title, setId, setTitle, setLocale, round, dueWordCount, onClose }) => {
     const navigate = useNavigate();
+    const [isStartingNextRound, setIsStartingNextRound] = useState(false);
 
     const handleGoToWordsPage = () => {
-        setStateTrainingWordPage({ ...stateTrainingWordPage, isResultTrainingModalVisible: false })
-        navigate('/set/words', { state: { set: { title: setTitle, id: setId, locale: setLocale } }} );
+        onClose();
+        navigate('/set/words', { state: { set: { title: setTitle, id: setId, locale: setLocale } } });
     };
 
-    const handleTrainAgain = () => {
-        setStateTrainingWordPage({ ...stateTrainingWordPage, isResultTrainingModalVisible: false });
-        if (!wordsToLearn.length) {
-            navigate('/set/words', { state: { set: { title: setTitle, id: setId, locale: setLocale } }} );
-            return;
+    const handleStartNextRound = async () => {
+        if (isStartingNextRound) return;
+        setIsStartingNextRound(true);
+        try {
+            const { data } = await wordService.startTrainingRound({
+                userId: getLoggedUserId(), setId, trainingKey,
+            });
+            if (!data.words.length) {
+                message.info('There are no words in this set yet.');
+                handleGoToWordsPage();
+                return;
+            }
+            onClose();
+            navigate('/words/trainings/play', { state: {
+                wordsData: data.allWords,
+                wordsToLearn: getShuffleWords(data.words),
+                round: data.round,
+                setId,
+                trainingKey,
+                title,
+                setTitle,
+                setLocale,
+            }});
+        } catch (error) {
+            message.error('Could not start the next round. Please try again.');
+        } finally {
+            setIsStartingNextRound(false);
         }
-
-        const stateToPass = {
-            wordsData,
-            wordsToLearn,
-            setId,
-            trainingKey,
-            title,
-            setTitle,
-            setLocale,
-        }
-        navigate('/words/trainings/play', { state: stateToPass} );
     };
 
     return (
-        <>
-            {
-                wordsToLearn.length
-                    ? (<Modal
-                        title="Result of training:"
-                        visible={isResultTrainingModalVisible}
-                        onOk={handleGoToWordsPage}
-                        okText={'Go to words page'}
-                        onCancel={handleTrainAgain}
-                        cancelText={'Practice words again'}
-                    >
-                        <p>
-                            {`${amountLeftWordsToLearn} words left to learn`}
-                        </p>
-                    </Modal>)
-                    : (<Modal
-                        title="Result of training:"
-                        visible={isResultTrainingModalVisible}
-                        onOk={handleGoToWordsPage}
-                        okText={'Go to words page'}
-                        onCancel={handleGoToWordsPage}
-                        cancelButtonProps={{ style: { display: 'none' } }}
-                    >
-                        <CheckCircleTwoTone twoToneColor="#52c41a" />
-                        <span style={{marginLeft: '10px'}}>
-                            {`You know all words from this set`}
-                        </span>
-                    </Modal>)
-            }
-        </>
-    )
-}
-const ResultModalWithRouter = withRouter(ResultModal);
+        <Modal
+            title={`Round ${round} complete`}
+            visible={visible}
+            onOk={handleStartNextRound}
+            okText={isStartingNextRound ? 'Starting…' : 'Start next round'}
+            confirmLoading={isStartingNextRound}
+            onCancel={handleGoToWordsPage}
+            cancelText="Go to words page"
+        >
+            <p>{`You reviewed all ${dueWordCount} due words in this round.`}</p>
+            <p>Correct answers return after progressively longer Fibonacci intervals. Incorrect answers are due in the next round.</p>
+        </Modal>
+    );
+};
+
+const ResultModalWithRouter = ResultModal;
 
 export {
     ResultModalWithRouter,

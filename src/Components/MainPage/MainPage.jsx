@@ -9,11 +9,18 @@ const MainPage = ({ userState, loginUser, logoutUser }) => {
     const { login } = userState;
 
     return (
-        <div className="site-layout-background" style={{ padding: 24, minHeight: '82vh', marginTop: 16 }}>
+        <div className="site-layout-background main-page-panel">
             {
                 login
                     ? (<HelloPage userName={login} logoutUser={logoutUser}/>)
-                    : (<LoginForm loginUser={loginUser} />)
+                    : (
+                        <div className="welcome-content">
+                            <span className="eyebrow">A LITTLE PRACTICE, EVERY DAY</span>
+                            <h1>Make every word stick.</h1>
+                            <p>Sign in with your username to continue learning.</p>
+                            <LoginForm loginUser={loginUser} />
+                        </div>
+                    )
             }
         </div>
     )
